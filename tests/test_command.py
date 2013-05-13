@@ -167,6 +167,44 @@ class TestCommand(object):
 
         program.print_help()
 
+    def test_run1(self):
+
+        def bar(command):
+            assert command.bar == 'lepture'
+            command.print_help()
+
+        program = Command('runfoo1', run=bar)
+        program.option('-b, --bar <bar>', "foo bar")
+        program.parse('-b lepture')
+        assert program.bar == 'lepture'
+        program.print_help()
+
+    def test_run2(self):
+        program = Command('runfoo2')
+
+        def bar(command):
+            assert command.bar == 'lepture'
+            command.print_help()
+
+        # subcommand
+        subcommand = Command('subfoo', run=bar)
+        subcommand.option('-b, --bar <bar>', "foo bar")
+        program.action(subcommand)
+        program.parse('subfoo -b lepture')
+        program.print_help()
+
+    def test_run3(self):
+        program = Command('runfoo3')
+        program.option('-b, --bar <bar>', "foo bar")
+
+        def bar(command):
+            assert command.bar == 'lepture'
+            command.print_help()
+
+        program.run = bar
+        program.parse('-b lepture')
+        program.print_help()
+
     def test_func(self):
         def bar():
             return 'bar'

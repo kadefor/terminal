@@ -193,13 +193,14 @@ class Command(object):
     """
 
     def __init__(self, name, description=None, version=None, usage=None,
-                 title=None, func=None, help_footer=None):
+                 title=None, func=None, run=None, help_footer=None):
         self._name = name
         self._description = description
         self._version = version
         self._usage = usage
         self._title = title
         self._command_func = func
+        self._command_run = run
         self._help_footer = help_footer
 
         self._parent = None
@@ -454,6 +455,10 @@ class Command(object):
         self._command_list.append(cmd)
         return self
 
+    def run(self, command):
+        if self._command_run:
+            self._command_run(command)
+
     def parse(self, argv=None):
         """
         Parse argv of terminal
@@ -462,15 +467,18 @@ class Command(object):
         """
 
         if not argv:
-            argv = sys.argv
+            self._argv = sys.argv[1:]
         elif isinstance(argv, str):
-            argv = argv.split()
+            self._argv = argv.split()
+        elif isinstance(argv, list):
+            self._argv = argv[1:]
 
-        self._argv = argv[1:]
         if not self._argv:
             self.validate_options()
             if self._command_func:
                 self._command_func(**self._results)
+            else:
+                self.run(self)
             return self
 
         cmd = self._argv[0]
@@ -496,6 +504,8 @@ class Command(object):
 
         if self._command_func:
             self._command_func(**self._results)
+        else:
+            self.run(self)
         return self
 
     def print_version(self):
