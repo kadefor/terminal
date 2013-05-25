@@ -197,13 +197,15 @@ class Command(object):
     """
 
     def __init__(self, name, description=None, version=None, usage=None,
-                 title=None, func=None, help_footer=None, arguments=None):
+                 title=None, func=None, run=None, help_footer=None,
+                 arguments=None):
         self._name = name
         self._description = description
         self._version = version
         self._usage = usage
         self._title = title
         self._command_func = func
+        self._command_run = run
         self._help_footer = help_footer
         self._positional_list = arguments or []
 
@@ -473,6 +475,10 @@ class Command(object):
         """Alias for Command.action."""
         return self.action(command)
 
+    def run(self, command):
+        if self._command_run:
+            self._command_run(command)
+
     def parse(self, argv=None):
         """
         Parse argv of terminal
@@ -521,6 +527,8 @@ class Command(object):
 
         if self._command_func:
             self._command_func(**self._results)
+        else:
+            self.run(self)
         return self
 
     def print_version(self):
