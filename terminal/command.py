@@ -496,6 +496,8 @@ class Command(object):
             self.validate_options()
             if self._command_func:
                 self._command_func(**self._results)
+            else:
+                self.run(self)
             return self
 
         cmd = self._argv[0]
